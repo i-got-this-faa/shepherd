@@ -216,14 +216,12 @@ Institutions run computer labs with Linux, macOS, and Windows machines on one ne
 
 ## What is Nix
 
-Nix is a package manager and configuration system built around one idea: a configuration file describes the required state, and tooling derives the steps to reach it.
+Nix is a declarative package manager and configuration system. It allows reproducible, declarative management of software across multiple operating systems.
 
-- **Store paths**: Every package builds into an isolated path `/nix/store/<hash>-<name>`. The hash covers all build inputs. Same inputs, same output, on any machine.
-- **No dependency conflicts**: Two versions of a library coexist because their paths differ.
+- **Store paths**: Every package builds into an isolated protected path. The hash covers all build inputs and ensures reproducibility.
+- **No dependency conflicts**: Nix allows multiple versions of a library to coexist.
 - **Generations**: Each configuration activation creates a numbered generation. Switching to the previous one is a symlink change.
-- **Flakes**: `flake.nix` plus `flake.lock` pin every input to an exact commit, so two machines evaluate the same configuration into the same system.
-
-Nix defines one machine. This project extends the model to many machines across three operating systems.
+- **Flakes**: flakes pin every input to an exact version, so two machines evaluate the same configuration into the same system.
 
 ---
 
@@ -237,17 +235,17 @@ Nix defines one machine. This project extends the model to many machines across 
 | **Deep Freeze** | Lab disks | Restores disk on reboot but cannot install updates or change packages |
 | **NixOS alone** | One machine | Declarative and rollback-capable, but no central dispatch, inventory, or non-Linux targets |
 
-Shepherd combines the missing pieces: one declarative source for three operating systems, pull-based agents, signed artifacts, and rollback from the model rather than as an add-on.
+Shepherd provides one declarative source for three operating systems, pull-based agents, signed artifacts, and rollback from the model rather than as an add-on.
 
 ---
 
 ## How it works
 
-A Go server evaluates Nix Flakes into target states. Agents on each machine enforce these states.
+A central server evaluates Nix Flakes into target states. Watchers on each machine enforce these states.
 
 - **One source**: Administrators maintain a single Flake repository describing every host.
-- **Pull model**: The server sends a SHA-256 target hash. Each agent fetches what it needs and applies it locally.
-- **Verification**: Every archive carries an Ed25519 signature. Agents check signatures before unpacking.
+- **Pull model**: The server sends a target hash. Each machine fetches what it needs and applies it locally.
+- **Verification**: Every archive carries a cryptographic signature. Watchers check signatures before unpacking.
 - **Rollback**: A failed health check switches the host back to the previous generation.
 
 Target users: campus system administrators, lab assistants, and institutional IT staff.
@@ -257,9 +255,9 @@ Target users: campus system administrators, lab assistants, and institutional IT
 ## Onboarding a new machine
 
 1. The technician boots the machine from an enrollment image (USB or PXE) containing `shepherd-srv` and host keys.
-2. The agent generates a device key pair and sends a join request.
+2. The client generates a device key pair and sends a join request.
 3. An administrator approves the token in the web console.
-4. The agent receives its host name, role, and Flake target over mTLS.
+4. The client receives its host name, role, and Flake target.
 5. It pulls the signed closure from the cache or a LAN peer and verifies each signature.
 6. It applies generation 1 and reports the resulting hash. The console lists the node as compliant.
 
@@ -274,15 +272,15 @@ After this, the node applies each new target hash on its own.
 
 - **Shepherd server**: Evaluates unified Nix Flakes into target closures.
 - **Control channel**: Outbound gRPC over HTTPS port 443 with mTLS.
-- **Linux endpoints**: NixOS with ephemeral `tmpfs` root.
+- **Linux endpoints**: NixOS with shepherd client service.
 - **macOS endpoints**: Nix-Darwin with embedded NanoMDM security.
-- **Windows endpoints**: Native Go agent (`shepherd-srv`) maps configurations to Win32, Registry, and LGPO.
+- **Windows endpoints**: Native watcher service maps configurations to Win32, Registry, and LGPO.
 - **P2P transport**: Tailcat userspace WireGuard mesh on local networks.
 
 </div>
 <div class="col-right">
 
-<img src="/home/radhey/code/fleet-management/assets/diagram_topology.svg" />
+<img src="./assets/diagram_topology.svg" />
 
 </div>
 </div>
@@ -294,17 +292,17 @@ After this, the node applies each new target hash on its own.
 <div class="split-40-60">
 <div class="col-left">
 
-- Admin pushes Flake lock update to Git.
+- Admin pushes Flake update.
 - Build workers compile derivations and write outputs to Attic.
 - Server sends target hash to endpoints via gRPC.
 - Node A downloads missing paths from Attic S3.
 - Node B requests chunks from Node A over local LAN Tailcat WireGuard.
-- Endpoints verify Ed25519 signatures before unpacking.
+- Endpoints verify payload signatures before unpacking.
 
 </div>
 <div class="col-right">
 
-<img src="/home/radhey/code/fleet-management/assets/diagram_cache_sequence.svg" />
+<img src="./assets/diagram_cache_sequence.svg" />
 
 </div>
 </div>
@@ -317,14 +315,13 @@ After this, the node applies each new target hash on its own.
 <div class="col-left">
 
 - **Ephemeral root**: The system boots with `tmpfs` mounted at `/`. A reboot clears all changes made after boot.
-- **Store protection**: `/nix/store` mounts read-only.
-- **Persistent state**: Machine identity and host keys bind from `/persist` using `impermanence`.
-- **Rollback**: If post-switch health checks fail, the agent reverts the symlink to generation N-1.
+- **Store protection**: Read-only policy ensures non-administrator processes cannot modify system.
+- **Rollback**: If post-switch health checks fail, the agent reverts the symlink to last safe generation.
 
 </div>
 <div class="col-right">
 
-<img src="/home/radhey/code/fleet-management/assets/diagram_linux_workflow.svg" />
+<img src="./assets/diagram_linux_workflow.svg" />
 
 </div>
 </div>
@@ -335,16 +332,15 @@ After this, the node applies each new target hash on its own.
 
 <div class="split-50-50">
 <div class="col-left">
-
-- **MDM channel**: The server runs an embedded NanoMDM service for FileVault escrow and TCC permissions.
-- **Nix channel**: Packages install under `/nix/store` through APFS synthetic firmlinks.
-- **Activation**: `darwin-rebuild activate` updates LaunchDaemons and preference plists.
+All macOS nodes require a trusted MDM through which the system can be configured and managed remotely.
+- **MDM channel**: The server runs an embedded NanoMDM service for files and TCC (Transparency, Consent, and Control) management.
+- **Nix channel**: Packages install in a read-only store through APFS synthetic firmlinks.
 - **Licensing**: No third-party MDM subscription.
 
 </div>
 <div class="col-right">
 
-<img src="/home/radhey/code/fleet-management/assets/diagram_macos_workflow.svg" />
+<img src="./assets/diagram_macos_workflow.svg" />
 
 </div>
 </div>
@@ -357,37 +353,21 @@ After this, the node applies each new target hash on its own.
 <div class="col-left">
 
 - **Intermediate representation**: The server evaluates Nix into a typed JSON desired-state document.
-- **Generation bundle**: `shepherd-srv` writes files to `C:\ProgramData\Shepherd\generations\<hash>\`.
+- **Generation bundle**: Client watcher writes files to a secure filepath.
 - **State application**:
   - Writes registry keys through Win32 API calls.
-  - Compiles and applies LGPO policy files.
-  - Installs Winget and MSIX packages.
+  - Compiles and applies Group policy files.
+  - Installs packages using the Windows Package Manager (WinGet).
   - Configures services and queries WMI.
-- **Rollback**: If verification fails, the agent re-applies the generation N-1 bundle.
+- **Rollback**: If verification fails, the agent re-applies the last safe bundle.
 
 </div>
 <div class="col-right">
 
-<img src="/home/radhey/code/fleet-management/assets/diagram_windows_workflow.svg" />
+<img src="./assets/diagram_windows_workflow.svg" />
 
 </div>
 </div>
-
----
-
-## Windows rollback: generation re-application
-
-State diff engines and disk restore points were considered and rejected.
-
-- Diff journals accumulate edge cases; a missed write leaves the host inconsistent.
-- Volume Shadow Copy restore points occupy gigabytes and need a reboot.
-
-The agent re-applies the previous bundle instead:
-
-1. Bundles stay on disk under `C:\ProgramData\Shepherd\generations\`.
-2. Each bundle holds complete `.reg` files, policy manifests, and package lists.
-3. If generation N fails validation, the agent re-runs the generation N-1 bundle.
-4. Re-application is idempotent: the host returns to the declared state in seconds, without a reboot.
 
 ---
 
@@ -404,7 +384,7 @@ The agent re-applies the previous bundle instead:
 </div>
 <div class="col-right">
 
-<img src="/home/radhey/code/fleet-management/assets/diagram_network_mesh.svg" />
+<img src="./assets/diagram_network_mesh.svg" />
 
 </div>
 </div>
@@ -416,16 +396,16 @@ The agent re-applies the previous bundle instead:
 <div class="split-40-60">
 <div class="col-left">
 
-- **Web console (Next.js 16)**: Live node inventory, target generations, and drift state.
+- **Web console**: Live node inventory, NoCode target generations, and drift state.
 - **Telemetry stream**: Ingests node metrics and heartbeats via Go gRPC into PostgreSQL.
 - **AI incident insights**: Explains Prometheus alerts and metric spikes with plain-language root-cause notes.
-- **AI-recommended tweaks**: Proposes hardware-matched Flake tweaks and configuration diffs for admin approval.
+- **AI-recommended tweaks**: 1-click hardware-matched Flake tweaks and configuration diffs for admin approval.
 - **1-click revert**: Administrator confirms AI proposals and triggers instant rollback for drifting nodes.
 
 </div>
 <div class="col-right">
 
-<img src="/home/radhey/code/fleet-management/assets/diagram_dashboard.svg" />
+<img src="./assets/diagram_dashboard.svg" />
 
 </div>
 </div>
@@ -450,11 +430,11 @@ The agent re-applies the previous bundle instead:
 | **Apple MDM** | NanoMDM | APNs push, FileVault key escrow, TCC profiles |
 | **Database** | PostgreSQL 16 | Node inventory, optional TimescaleDB telemetry |
 | **Build cache** | Attic + S3 | Content-addressed store, FastCDC deduplication |
-| **Client agent** | Go 1.23 (`shepherd-srv`) | systemd / launchd / Windows service |
+| **Client agent** | Go 1.23 | systemd / launchd / Windows service |
 | **Windows engine** | Win32 FFI | Registry writes, LGPO policies, Winget installs |
 | **Web console** | Next.js 16 | React 19, TypeScript, Tailwind CSS |
 | **Analysis** | LLM pipeline | Log summaries, derivation drafts, hardware tuning proposals |
-
+| **Networking** | WireGuard + Tailcat | peer-to-peer communication, remote access |
 ---
 
 ## V.E.T.S justification
