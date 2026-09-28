@@ -333,6 +333,7 @@ After this, the node applies each new target hash on its own.
 <div class="split-50-50">
 <div class="col-left">
 All macOS nodes require a trusted MDM through which the system can be configured and managed remotely.
+
 - **MDM channel**: The server runs an embedded NanoMDM service for files and TCC (Transparency, Consent, and Control) management.
 - **Nix channel**: Packages install in a read-only store through APFS synthetic firmlinks.
 - **Licensing**: No third-party MDM subscription.
