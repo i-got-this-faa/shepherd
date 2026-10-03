@@ -1,4 +1,0 @@
-interface:
-  display_name: "Finish the Work"
-  short_description: "Carry broad or interrupted work to proof"
-  default_prompt: "Use $finish-the-work to complete this task through validation and the requested Git actions."

@@ -1,4 +1,0 @@
-interface:
-  display_name: "Publish with QckPages"
-  short_description: "Publish HTML and return a link"
-  default_prompt: "Use $publish-qckpage to publish this HTML file and return its public link."

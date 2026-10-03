@@ -1,4 +1,0 @@
-interface:
-  display_name: "Share with FBS"
-  short_description: "Upload a file and return a link"
-  default_prompt: "Use $share-with-fbs to upload this file and return a shareable link."

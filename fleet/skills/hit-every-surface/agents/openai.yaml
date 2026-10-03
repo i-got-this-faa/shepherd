@@ -1,4 +1,0 @@
-interface:
-  display_name: "Hit Every Surface"
-  short_description: "Trace a change through every affected surface"
-  default_prompt: "Use $hit-every-surface to map and complete all affected paths for this change."

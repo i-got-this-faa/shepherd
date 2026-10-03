@@ -1,4 +1,0 @@
-interface:
-  display_name: "Verify Real Behavior"
-  short_description: "Prove behavior at the real runtime boundary"
-  default_prompt: "Use $verify-real-behavior to verify this change at the nearest real boundary."

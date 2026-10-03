@@ -1,4 +1,0 @@
-interface:
-  display_name: "Babysit PR"
-  short_description: "Wait for every AI reviewer, then fix findings"
-  default_prompt: "Use $babysit-pr to wait for every AI reviewer on this pull request and then fix the valid findings."

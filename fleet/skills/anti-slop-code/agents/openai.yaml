@@ -1,4 +1,0 @@
-interface:
-  display_name: "Anti-Slop Code Review"
-  short_description: "Remove low-evidence AI code without churn"
-  default_prompt: "Use $anti-slop-code to review this change for low-evidence or needless code."

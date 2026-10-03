@@ -1,4 +1,0 @@
-interface:
-  display_name: "File a Pull Request"
-  short_description: "Prepare a clear and review-ready pull request"
-  default_prompt: "Use $file-a-pr to verify this branch and open a review-ready pull request."
