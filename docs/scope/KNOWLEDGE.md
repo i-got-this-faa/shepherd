@@ -8,6 +8,122 @@ that the proposed system already exists or that the scope is finalized.
 
 ## Purpose and working agreement
 
+### Current requirements baseline
+
+[SRS.md](SRS.md) consolidates the user answers, including the final clarification
+round. It is authoritative over older unanswered questions below. The historical
+interview is retained as evidence, not a request to repeat settled questions.
+
+Final clarifications:
+
+- Next.js 16 is selected for the web console. Pin the exact 16.x release with
+  implementation; the UI component library remains unspecified.
+- Automatic fixing repairs endpoint drift only; it does not approve new drafts
+  or new deployments.
+- Group assignment supplies the normal profile. A directly assigned special
+  profile takes precedence for that machine.
+- Incompatible Nix definitions fail evaluation/build. Report that error and
+  prevent invalid deployment rather than inventing silent conflict resolution.
+- Recovery targets the last working configuration.
+- Removal is initiated only from the dashboard; no reinstall/undo promise was
+  requested.
+- Shepherd must be the sole configuration manager while it manages a machine.
+- Other Linux distribution management is removed from current scope and may
+  return in a future release. NixOS remains the managed Linux platform.
+
+The SRS translates these decisions into requirements and demo acceptance flows.
+Exact platform operations, OS versions, timing/scale, trust protocols, and
+operational defaults need implementation specifications and measured evidence;
+they are not implied by the older presentation. No runtime verification, commit,
+or push was performed in this documentation round.
+
+### Previous answer round — 2026-10-03
+
+This section records the latest user answers and supersedes older open questions
+where an answer is explicit. It does not turn ambiguous answers into accepted
+requirements or claim implementation. The ambiguities recorded below were
+identified before the final clarification round; the current baseline above
+supersedes their historical status.
+
+Confirmed decisions:
+
+- Shepherd is the current product name. Fleet and fleetd are legacy names.
+- The normal configuration workflow is a GUI configurator. Raw Nix remains
+  available in an advanced editor hidden from the normal workflow.
+- Shepherd is agent-first, with complete manual operation available without AI.
+- Hardware tuning, federated learning, and lifecycle reports belong to V2.
+  The other features listed in the preceding scope round belong to V1, including
+  macOS/Apple MDM, other-Linux profiles, and AI package generation. The Linux
+  reinstall requirement below needs reconciliation with other-Linux profiles.
+- Windows Enterprise and Pro receive primary support. Home receives secondary
+  support; exact capability and supported-version boundaries remain unspecified.
+- Managed Linux machines are to be reinstalled as NixOS.
+- An automatic-fix toggle is requested. Whether it fixes configuration drafts,
+  corrects endpoint drift, or authorizes deployment remains to be clarified.
+- Configurations can be assigned directly or through groups. Profile assignment
+  must not leave conflicting effective settings; the resolution rule remains
+  unspecified.
+- Endpoints do not independently upgrade applications. Upgrades originate from
+  the server after approval. Services and other desired settings are authored
+  through system Nix configuration.
+- Configuration management uses diffs. This does not yet define ownership of
+  PATH entries or undeclared resources.
+- Shepherd is intended to block competing management software while managing
+  a machine. The specific competing tools and enforcement method are not defined.
+- Enrollment is intended to use an ISO; removal is initiated from the dashboard.
+  Platform-specific enrollment and removal effects remain to be specified.
+- The initial operator role is administrator.
+- Updates are controlled through Shepherd configuration.
+- Agents use an OpenAI-compatible API. Provider compatibility and model/runtime
+  requirements have not been tested.
+- The demo must show configuration deployment on a machine, drift detection,
+  and profile switching. No hardware-specific demo requirement is requested.
+
+Answers requiring interpretation before they become normative requirements:
+
+- "Report and drop" with agent-proposed equivalents may concern unsupported
+  platform settings, custom-Nix conflicts, or both. Whether an equivalent needs
+  approval is also unresolved.
+- "Deployment seen by the admin or agent" does not yet settle who can approve
+  or execute deployment, or the automatic-fix toggle's authority.
+- "Yes" appears to accept the proposed offline behavior, but does not select
+  immediate versus maintenance-window activation on reconnection.
+- "Last one" does not identify an unambiguous recovery policy in the preceding
+  question. Atomic rollback, generation reapplication, and bounded reversal
+  cannot be treated as equivalent guarantees.
+- ISO enrollment needs a macOS-compatible path if macOS is V1. Dashboard removal
+  does not yet specify whether managed state is retained or reversed.
+- OS version boundaries, required resource operations, reboot rules, signing
+  and enrollment trust, and measurable demo acceptance criteria remain open.
+
+Technical verification, documentation only:
+
+- NixOS reproduces declared system configuration, but mutable state is excluded.
+  Nix configuration alone is not a continuous runtime drift detector or repair
+  loop. Shepherd still needs observation and reconciliation for managed state.
+  Source: https://nixos.org/guides/how-nix-works/
+- nix-darwin provides declarative macOS configuration, while Apple configuration
+  profiles/MDM manage additional settings and restrictions. macOS must not inherit
+  NixOS-wide immutability or rollback guarantees by assumption.
+  Sources: https://github.com/nix-darwin/nix-darwin/blob/master/README.md and
+  https://support.apple.com/guide/deployment/intro-to-device-management-profiles-depc0aadd3fe/web
+- No NixOS, macOS, or Windows runtime behavior was verified in this scope round.
+
+Completion record for this scope round:
+
+| Result | Source paths | Runtime paths | Check | State | Evidence |
+|---|---|---|---|---|---|
+| Record explicit decisions without guessing ambiguous answers | `docs/scope/KNOWLEDGE.md` | N/A | Review against user response; diff check | proved | Latest SRS decisions above |
+| Verify declarative configuration limitations | Upstream NixOS, nix-darwin, Apple docs | N/A | Read primary documentation | proved | Sources above; no device testing |
+| Write requirements baseline and acceptance criteria | `docs/scope/SRS.md` | N/A | Final clarification round; link and requirement-ID checks | proved | SRS contains 29 requirements and 8 acceptance scenarios |
+
+Working state: branch `main`, starting commit `c0f896f`; worktree was clean before
+this documentation edit. SRS and ownership notes are now updated. Local Markdown
+links, unique requirement IDs, and `git diff --check` passed. No runtime tests,
+commit, or push were performed. Implementation begins from the SRS baseline;
+platform capability tables and operational protocols still need implementation
+specifications and measured evidence.
+
 ### Monorepo architecture baseline — 2026-10-03
 
 The user approved creating the complete folder structure and preserving empty

@@ -8,6 +8,23 @@ choices. Unsettled product decisions remain unsettled.
 
 ## Source coverage
 
+The [SRS](../scope/SRS.md) supersedes older proposal classifications below.
+For the SRS documentation round, the applicable paths are recorded here:
+
+| Surface | Applicability | Requirement/evidence |
+|---|---|---|
+| GUI/manual/advanced Nix | applies | CFG-01–07, AGT-01; configurator ownership note updated |
+| Central/node agent authority | applies | AGT-02–06; runner ownership notes updated |
+| Group/direct assignment and reversal | applies | PRF-01–04, DEM-03 |
+| NixOS, Windows, macOS providers | applies | Release boundaries, platform limits; no provider implementation in this task |
+| Other Linux distribution profiles | does not apply to V1 | Explicit user removal; reserved folders retained |
+| Drift, recovery, failed activation | applies | DEP-03–06, DEM-02/06 |
+| LAN/WAN, DERP, peer and offline modes | applies | Agreed network baseline, DEP-01/04, DEM-07 |
+| Enrollment/removal, exclusive manager | applies | ADM-01–05, DEM-08 |
+| Contracts, signing, approved updates | applies | DEP-01/02, AGT-06, ADM-04; implementation specs still required |
+| Hardware tuning, federated learning, lifecycle reports | does not apply to V1 | Explicit V2 decision |
+| Runtime changes/tests and academic regeneration | does not apply to this documentation task | SRS baseline only; historical artifacts remain historical |
+
 | Surface | Source | Ownership | Applicability |
 |---|---|---|---|
 | Administrator GUI and program controls | KNOWLEDGE configuration and Q25 | `apps/web-console/src/configurator/` | applies |

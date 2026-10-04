@@ -4,5 +4,7 @@ Home for central agent workflows using the shared stripped-down Pi fork in
 `packages/pi/`. Fleet coordination remains in `apps/control-plane/`.
 Node-local workflows belong in `apps/node-agent/`.
 
-No runner implementation exists yet. Tools, task assignment, and authority are
-still scope decisions recorded in `docs/scope/KNOWLEDGE.md`.
+No runner implementation exists yet. Agents inspect state, explain failures and
+prepare drafts. The automatic-fix toggle authorizes endpoint drift repair only;
+new configurations and upgrades retain approval requirements.
+Current requirements: [SRS](../../docs/scope/SRS.md).

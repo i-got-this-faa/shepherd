@@ -6,8 +6,9 @@ Nix modules, storage, packaging, tests, and academic artifacts. Turborepo is not
 required. Empty source folders contain `.gitkeep`; folders with existing files
 already remain in Git.
 
-The agreed architecture and unresolved SRS requirements are recorded in
-[KNOWLEDGE.md](docs/scope/KNOWLEDGE.md). Folder ownership is mapped in the
+The current product requirements are in [SRS.md](docs/scope/SRS.md).
+[KNOWLEDGE.md](docs/scope/KNOWLEDGE.md) records the scope decision history.
+Folder ownership is mapped in the
 [surface ledger](docs/development/layout-surfaces.md).
 
 ```text

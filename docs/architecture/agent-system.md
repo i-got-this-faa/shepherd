@@ -1,7 +1,9 @@
 # Shepherd system architecture
 
-This document records the earlier presentation-based proposal. Confirmed scope
-and unresolved choices are in [KNOWLEDGE.md](../scope/KNOWLEDGE.md). The current
+This document records the earlier presentation-based proposal. Current product
+requirements are in [SRS.md](../scope/SRS.md); it supersedes conflicting proposals
+below, including draft-only agent scope and unconditional rollback claims.
+Decision history is in [KNOWLEDGE.md](../scope/KNOWLEDGE.md). The current
 folder layout is in the [root README](../../README.md). Pi now has a shared
 stripped-down fork under `packages/pi/`, with central and node runners.
 The later monorepo baseline confirms the Go backend, shared headless Pi fork,
