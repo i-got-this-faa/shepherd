@@ -12,7 +12,7 @@ rollback guarantees.
   the capability table.
 - An Apple Push Notification MDM certificate (requires Apple ID + vendor
   signing via mdmcert.download or an Apple Business Manager account).
-  **Spike in week 1** confirms which path the team can obtain within the
+  **Spike in weeks 1–2** confirms which path the team can obtain within the
   timeline; if neither is obtainable, MDM features are reported `unsupported`
   in the capability table, not faked.
 

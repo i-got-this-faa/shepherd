@@ -58,7 +58,7 @@ generation) [DEP-01, DEP-05].
   includes both keys; after all active nodes ack, the server switches signing
   to the new key and later publishes a set without the old key.
 - Rotation procedure is exposed as `shepherdctl keys rotate plan` and as a
-  console admin action in week 6 [ADM-04].
+  console admin action in weeks 11–12 [ADM-04].
 
 ## Revocation
 
@@ -75,7 +75,7 @@ generation) [DEP-01, DEP-05].
   server-side session row with idle (30 min) and absolute (12 h) expiry.
 - CSRF: double-submit token header on all mutating Connect calls.
 - First-run bootstrap: `shepherd admin create` CLI on the server host only.
-- Optional TOTP in week 6. OIDC is post-V1.
+- Optional TOTP in weeks 11–12. OIDC is post-V1.
 - Single role "administrator" in V1 [Purpose and users]; authorization code
   still checks a `role` column so later roles do not require refactors.
 
@@ -100,7 +100,7 @@ Hash-chained (`prev_hash`, `hash = sha256(prev_hash || canonical(row))`) so
 tampering is detectable `[impl]`. Never stores secrets; values are redacted by
 a field allow-list.
 
-## Threat checklist for week 6 review
+## Threat checklist for the weeks 11–12 review
 
 - Plan replay/rollback, expired plans, plan for another machine.
 - Stolen enrollment token reuse; token on lost USB.

@@ -45,7 +45,7 @@ winget/WUA/firewall), `github.com/microsoft/wmi` or raw COM for WMI.
 - Reverse: restore previous value or delete value/key that Shepherd created.
 - Drift: value missing, type changed, data changed.
 - Optional event trigger: `RegNotifyChangeKeyValue` on managed keys to
-  schedule an early drift pass `[impl, stretch in week 3]`.
+  schedule an early drift pass `[impl, stretch in weeks 5–6]`.
 
 ## env.variable / env.path
 
@@ -81,7 +81,7 @@ Machine scope only: `HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Envir
   unavailable as SYSTEM on the tested build, the documented fallback is the
   CLI path with `--disable-interactivity --accept-source-agreements
   --accept-package-agreements --scope machine` executed with a hard timeout;
-  record which path was used in evidence. `[spike in week 2 decides]`
+  record which path was used in evidence. `[spike in weeks 3–4 decides]`
 - Fields: `wingetId`, `version` (required, pinned), `scope: machine`,
   `ensure`. `latest` is not allowed [DEP-02].
 - Observation: installed version via COM `FindPackages` / `winget list`

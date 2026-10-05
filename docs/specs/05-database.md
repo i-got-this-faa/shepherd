@@ -1,6 +1,6 @@
 # 05 — Database
 
-PostgreSQL (pin a major version in week 1; 17 recommended). Migrations with
+PostgreSQL (pin a major version in weeks 1–2; 17 recommended). Migrations with
 `goose` in `apps/control-plane/migrations/`, queries with `sqlc`. UUIDv7
 primary keys (time-ordered) `[impl]`. All timestamps `timestamptz`.
 

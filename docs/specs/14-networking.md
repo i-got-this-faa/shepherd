@@ -102,7 +102,7 @@ the tunnel so Connect-Go clients work unchanged.
 
 ## Acceptance
 
-- Spike (week 1): control plane and a node exchange a Connect RPC over
+- Spike (weeks 1–2): control plane and a node exchange a Connect RPC over
   Tailcat with a self-hosted derper in docker-compose; persistence of key/PSK
   verified across restart.
 - All six connectivity modes pass in the lab; results recorded.

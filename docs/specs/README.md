@@ -1,7 +1,7 @@
 # Shepherd V1 implementation specifications
 
 These specifications turn the [SRS](../scope/SRS.md) into buildable work for a
-six-week V1 delivery by two developers working with coding agents. Every GitHub
+twelve-week V1 delivery by two developers working with coding agents. Every GitHub
 issue on the **Shepherd V1** project links to one section of these files. The
 SRS remains authoritative for *what* must happen; these files decide *how*.
 When a spec and the SRS disagree, the SRS wins and the spec must be corrected
