@@ -115,13 +115,174 @@ func (ks *KeySet) Get(keyID string) (ed25519.PublicKey, bool) {
 	return k, ok
 }
 
+// validateIJSON validates that payload conforms to the I-JSON profile (RFC 7493) required by RFC 8785:
+// 1. Valid UTF-8 encoding
+// 2. No lone (unpaired) surrogate escape sequences (\uD800..\uDFFF) in strings
+// 3. No duplicate object keys
+func validateIJSON(payload []byte) error {
+	if !utf8.Valid(payload) {
+		return fmt.Errorf("signing: invalid UTF-8 encoding in JSON payload")
+	}
+	if err := checkSurrogates(payload); err != nil {
+		return err
+	}
+	if err := checkDuplicateKeys(payload); err != nil {
+		return err
+	}
+	return nil
+}
+
+func checkSurrogates(data []byte) error {
+	inString := false
+	for i := 0; i < len(data); i++ {
+		if !inString {
+			if data[i] == '"' {
+				inString = true
+			}
+			continue
+		}
+
+		if data[i] == '"' {
+			inString = false
+			continue
+		}
+
+		if data[i] == '\\' {
+			i++
+			if i >= len(data) {
+				return fmt.Errorf("signing: unterminated escape sequence in JSON string")
+			}
+			if data[i] == 'u' {
+				if i+4 >= len(data) {
+					return fmt.Errorf("signing: truncated unicode escape in JSON string")
+				}
+				for k := 1; k <= 4; k++ {
+					c := data[i+k]
+					if (c < '0' || c > '9') && (c < 'a' || c > 'f') && (c < 'A' || c > 'F') {
+						return fmt.Errorf("signing: truncated unicode escape in JSON string")
+					}
+				}
+				hexStr := string(data[i+1 : i+5])
+				cp, err := strconv.ParseUint(hexStr, 16, 16)
+				if err != nil {
+					return fmt.Errorf("signing: invalid unicode escape \\u%s: %w", hexStr, err)
+				}
+				i += 4
+
+				if cp >= 0xD800 && cp <= 0xDBFF {
+					// High surrogate: must be immediately followed by \uDC00..\uDFFF
+					if i+6 >= len(data) || data[i+1] != '\\' || data[i+2] != 'u' {
+						return fmt.Errorf("signing: lone high surrogate escape \\u%04X in JSON string", cp)
+					}
+					lowHex := string(data[i+3 : i+7])
+					lowCp, err := strconv.ParseUint(lowHex, 16, 16)
+					if err != nil || lowCp < 0xDC00 || lowCp > 0xDFFF {
+						return fmt.Errorf("signing: lone high surrogate escape \\u%04X not followed by low surrogate", cp)
+					}
+					i += 6 // Skip the valid low surrogate \uXXXX
+				} else if cp >= 0xDC00 && cp <= 0xDFFF {
+					return fmt.Errorf("signing: lone low surrogate escape \\u%04X in JSON string", cp)
+				}
+			}
+		}
+	}
+	return nil
+}
+
+func checkDuplicateKeys(data []byte) error {
+	dec := json.NewDecoder(bytes.NewReader(data))
+	tok, err := dec.Token()
+	if err != nil {
+		return fmt.Errorf("signing: failed to parse JSON tokens: %w", err)
+	}
+	if err := validateToken(tok, dec); err != nil {
+		return err
+	}
+	return nil
+}
+
+func validateToken(tok json.Token, dec *json.Decoder) error {
+	switch t := tok.(type) {
+	case json.Delim:
+		if t == '{' {
+			return validateObject(dec)
+		} else if t == '[' {
+			return validateArray(dec)
+		}
+		return fmt.Errorf("signing: unexpected JSON delimiter %v", t)
+	default:
+		return nil
+	}
+}
+
+func validateObject(dec *json.Decoder) error {
+	seenKeys := make(map[string]bool)
+	for dec.More() {
+		keyTok, err := dec.Token()
+		if err != nil {
+			return fmt.Errorf("signing: failed to read object key: %w", err)
+		}
+		key, ok := keyTok.(string)
+		if !ok {
+			return fmt.Errorf("signing: expected string key in object, got %T", keyTok)
+		}
+		if seenKeys[key] {
+			return fmt.Errorf("signing: duplicate object key %q", key)
+		}
+		seenKeys[key] = true
+
+		valTok, err := dec.Token()
+		if err != nil {
+			return fmt.Errorf("signing: failed to read object value for key %q: %w", key, err)
+		}
+		if err := validateToken(valTok, dec); err != nil {
+			return err
+		}
+	}
+
+	closeTok, err := dec.Token()
+	if err != nil {
+		return fmt.Errorf("signing: failed to read closing brace: %w", err)
+	}
+	if delim, ok := closeTok.(json.Delim); !ok || delim != '}' {
+		return fmt.Errorf("signing: expected '}', got %v", closeTok)
+	}
+	return nil
+}
+
+func validateArray(dec *json.Decoder) error {
+	for dec.More() {
+		valTok, err := dec.Token()
+		if err != nil {
+			return fmt.Errorf("signing: failed to read array element: %w", err)
+		}
+		if err := validateToken(valTok, dec); err != nil {
+			return err
+		}
+	}
+
+	closeTok, err := dec.Token()
+	if err != nil {
+		return fmt.Errorf("signing: failed to read closing bracket: %w", err)
+	}
+	if delim, ok := closeTok.(json.Delim); !ok || delim != ']' {
+		return fmt.Errorf("signing: expected ']', got %v", closeTok)
+	}
+	return nil
+}
+
 // CanonicalizeJSON converts raw JSON bytes into RFC 8785 canonical form (JCS):
 // - Property keys sorted by UTF-16 code unit values
 // - Strings output as raw UTF-8, escaping only required characters (\", \\, \b, \f, \n, \r, \t, \u00XX)
 //   (specifically preserving <, >, & without HTML escaping)
 // - Numbers formatted according to ECMAScript 6 Number.prototype.toString(10)
 // - No whitespace outside string literals
+// Rejects non-I-JSON input (lone surrogates, duplicate keys, invalid UTF-8).
 func CanonicalizeJSON(payload []byte) ([]byte, error) {
+	if err := validateIJSON(payload); err != nil {
+		return nil, err
+	}
+
 	d := json.NewDecoder(bytes.NewReader(payload))
 	d.UseNumber()
 

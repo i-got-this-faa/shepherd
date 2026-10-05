@@ -310,3 +310,85 @@ func TestSignAndVerifyRFC8785Conformance(t *testing.T) {
 	}
 }
 
+func TestCanonicalJSON_RejectNonIJSON(t *testing.T) {
+	tests := []struct {
+		name        string
+		input       string
+		wantErrText string
+	}{
+		{
+			name:        "duplicate key in top-level object",
+			input:       `{"key": 1, "key": 2}`,
+			wantErrText: "duplicate object key",
+		},
+		{
+			name:        "duplicate key in nested object",
+			input:       `{"config": {"host": "a", "host": "b"}}`,
+			wantErrText: "duplicate object key",
+		},
+		{
+			name:        "lone high surrogate escape",
+			input:       `{"name": "test\uD800alone"}`,
+			wantErrText: "lone high surrogate escape",
+		},
+		{
+			name:        "lone low surrogate escape",
+			input:       `{"name": "test\uDC00alone"}`,
+			wantErrText: "lone low surrogate escape",
+		},
+		{
+			name:        "high surrogate followed by non-surrogate escape",
+			input:       `{"name": "test\uD800\u0041"}`,
+			wantErrText: "not followed by low surrogate",
+		},
+		{
+			name:        "truncated unicode escape",
+			input:       `{"name": "test\uD80"}`,
+			wantErrText: "truncated unicode escape",
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			_, err := CanonicalizeJSON([]byte(tc.input))
+			if err == nil {
+				t.Fatalf("expected error containing %q, got nil", tc.wantErrText)
+			}
+			if !bytes.Contains([]byte(err.Error()), []byte(tc.wantErrText)) {
+				t.Fatalf("expected error containing %q, got %v", tc.wantErrText, err)
+			}
+		})
+	}
+}
+
+func TestCanonicalJSON_AcceptValidSurrogatePair(t *testing.T) {
+	// Valid surrogate pair \uD83D\uDE00 (grinning face 😀)
+	input := `{"emoji": "\uD83D\uDE00"}`
+	canonical, err := CanonicalizeJSON([]byte(input))
+	if err != nil {
+		t.Fatalf("expected valid surrogate pair to succeed, got %v", err)
+	}
+	expected := `{"emoji":"😀"}`
+	if string(canonical) != expected {
+		t.Fatalf("expected %q, got %q", expected, string(canonical))
+	}
+}
+
+func TestSign_RejectNonIJSON(t *testing.T) {
+	_, priv, _ := ed25519.GenerateKey(rand.Reader)
+	signer := NewEd25519Signer("test-key", priv)
+
+	// Duplicate keys should fail Sign for JSON payload types
+	_, err := Sign(PayloadTypePlan, []byte(`{"id": 1, "id": 2}`), signer)
+	if err == nil {
+		t.Fatal("expected Sign to reject payload with duplicate keys")
+	}
+
+	// Lone surrogate should fail Sign for JSON payload types
+	_, err = Sign(PayloadTypePlan, []byte(`{"note": "\uD83Dinvalid"}`), signer)
+	if err == nil {
+		t.Fatal("expected Sign to reject payload with lone surrogate escape")
+	}
+}
+
+
