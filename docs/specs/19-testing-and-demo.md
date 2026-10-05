@@ -62,4 +62,4 @@ Platform results are reported individually [Demo acceptance].
 
 - CI green on every PR with unit, contract, nix, e2e-against-fakes.
 - DEM-01..08 evidence folders filled for Windows Pro, NixOS; Windows Home and
-  macOS where applicable, by end of week 6.
+  macOS where applicable, by end of week 12.

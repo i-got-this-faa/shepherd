@@ -1,7 +1,7 @@
 # 17 — Web console
 
 Next.js 16 (App Router, React Server Components), TypeScript strict, in
-`apps/web-console/`. Pin the exact 16.x in week 1. UI kit `[impl]`: shadcn/ui
+`apps/web-console/`. Pin the exact 16.x in weeks 1–2. UI kit `[impl]`: shadcn/ui
 (Radix + Tailwind) — copy-in components, no runtime lock-in. Data: Connect-ES
 clients generated from `console.v1`, TanStack Query on the client for live
 views; server components call the Go API with the session cookie forwarded.

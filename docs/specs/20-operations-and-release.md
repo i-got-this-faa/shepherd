@@ -20,7 +20,7 @@ paths), UDP 3478 (STUN), internal ports bound to localhost/private network.
 - Config repo: git bundle nightly (also it's the source of truth for desired state).
 - FBS: SQLite `.backup` + data dir snapshot; Attic DB (if SQLite/Postgres) dump.
 - Secrets dir: offline backup procedure (manual, documented).
-- Restore drill documented and executed once in week 6.
+- Restore drill documented and executed once in weeks 11–12.
 
 ## Observability
 
