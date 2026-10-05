@@ -92,7 +92,10 @@ TypeScript worker or launch its JSON/RPC mode behind a narrow internal protocol.
 Its tools may read selected inventory, metrics, alerts, logs, and Flake context,
 then return a draft or explanation. Pi must not receive these capabilities:
 
-- endpoint shell or endpoint credentials
+- an unrestricted or writable endpoint shell, or endpoint credentials. Node
+  diagnosis uses daemon-executed read-only probes and sandboxes. Fixes outside
+  the approved configuration are proposals an admin approves step by step
+  ([spec 18](../specs/18-agents.md#authority-summary-agt-0108))
 - artifact signing keys
 - `dispatch`, `promote`, `revert`, or MDM command execution
 - direct writes to the canonical Flake repository

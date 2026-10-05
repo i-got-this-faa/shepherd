@@ -149,8 +149,8 @@ must identify their operational purpose and deployment requirements.
 | Web console | Configuration authoring, advanced Nix editing, inventory, assignment, approvals, deployment progress, drift, recovery, and removal |
 | Go control plane | Enrollment, identity, configuration evaluation coordination, approved targets, deployment authorization, reports, and audit records |
 | Build worker | Isolated Nix evaluation/build execution and publication of verified artifacts through the authorized signing process |
-| Central agent | Fleet-level inspection, explanations, and configuration or package drafts |
-| Node agent | Machine-local analysis and requests for authorized repair through the daemon |
+| Central agent | Fleet-level inspection, explanations, configuration or package drafts, and triage and escalation of node agent findings |
+| Node agent | Machine-local diagnosis through daemon-executed read-only probes, findings for the central agent, repair requests, and remediation proposals |
 | Shared headless Pi runtime | Model integration, agent sessions, tool execution, and common runtime behavior for central and node agents |
 | Node daemon and platform providers | Privileged observation, artifact verification, activation, reconciliation, persistent operation records, and recovery |
 | PostgreSQL | Persistent control-plane inventory, assignments, deployment state, and audit/report records |
@@ -231,9 +231,13 @@ bypass approval or artifact verification.
 
 - AGT-01: Supported administrator operations must remain usable without AI.
   Disabling AI or losing its provider must not disable manual fleet management.
-- AGT-02: Agents must use a configurable OpenAI-compatible API through the shared
-  headless runtime. Compatibility must be tested against the selected provider;
-  an API label alone does not establish support for its tools or streaming.
+- AGT-02: Agents must use a configurable model provider through the shared
+  headless runtime. An OpenAI-compatible API is required; native Anthropic,
+  Amazon Bedrock, and Google (Gemini API or Vertex AI) providers may be
+  configured with server-held API keys or cloud service credentials, not
+  personal subscription logins. Compatibility must be tested against the
+  selected provider; an API label alone does not establish support for its
+  tools or streaming.
 - AGT-03: Agents may inspect state, explain failures, and prepare configuration
   or package drafts. Drafts follow the same validation path as manual changes.
 - AGT-04: The automatic-fix toggle authorizes repair of drift toward the current
@@ -245,6 +249,21 @@ bypass approval or artifact verification.
 - AGT-06: Privileged execution belongs to the daemon and validated platform
   providers. Agents and browsers must not obtain signing keys or bypass plan
   validation through an unrestricted privileged shell.
+- AGT-07: Node agents may diagnose their own machine with privileged read
+  access that the daemon executes on their behalf. Access is limited to typed
+  read-only diagnostic probes and, where the platform can enforce it, a
+  read-only sandbox that cannot change system state, reach the network, or
+  read Shepherd or node secrets. Diagnostic output must be redacted and
+  recorded with the agent session.
+- AGT-08: Node agents report findings to the central agent, which may
+  correlate them across the fleet and escalate them to administrators as an
+  explanation, a draft, a repair request, or a proposed remediation command.
+  A remediation command changes the machine outside the approved
+  configuration. Agents may propose one, but it runs only after an
+  administrator explicitly approves that exact command for named machines, and
+  only from a control-plane-signed, expiring instruction that the daemon
+  verifies. No agent can approve, and approval of a remediation grants no
+  configuration-deployment authority.
 
 ## Deployment, drift, and recovery
 

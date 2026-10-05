@@ -9,6 +9,8 @@ The retained file manifest, local patch queue, and sync procedure are in
 
 No source has been imported yet; #189 performs the import. When importing,
 record the exact revision, retained paths, licenses/notices, local patches,
-and update procedure here. Keep the model integration and headless agent
-runtime; exclude the interactive TUI and coding agent. Fork maintenance tooling
-belongs under `tools/upstream/`, and behavior checks under `tests/pi/`.
+and update procedure here. Keep the model integration
+(OpenAI-compatible, Anthropic, Bedrock, Google, Vertex) and the headless agent
+runtime. Exclude the interactive TUI, the coding agent and its local tools,
+and subscription OAuth. Fork maintenance tooling belongs under
+`tools/upstream/`, and behavior checks under `tests/pi/`.

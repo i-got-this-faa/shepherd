@@ -69,7 +69,11 @@ primary keys (time-ordered) `[impl]`. All timestamps `timestamptz`.
 |---|---|
 | `agent_sessions` | id, kind (`central\|node`), machine_id null, started_by, purpose, started_at, ended_at, model, status |
 | `agent_messages` | session_id, seq, role, content (redacted), tool_name, created_at |
-| `agent_tool_calls` | id, session_id, tool, input jsonb, output_digest, authorized bool, denied_reason |
+| `agent_tool_calls` | id, session_id, tool, tier (`read\|probe\|sandbox\|write`), input jsonb, output_redacted text (capped), output_digest, authorized bool, denied_reason |
+| `agent_findings` | id, machine_id, session_id, summary, document jsonb, confidence, status (`new\|triaging\|closed\|escalated`), created_at, triaged_by_session_id null [AGT-08] |
+| `escalations` | id, finding_ids uuid[], central_session_id, summary, recommendation_kind (`explanation\|draft\|repair\|remediation\|human`), draft_id null, remediation_proposal_id null, status (`open\|acknowledged\|resolved`), resolved_by null → `admins` |
+| `remediation_proposals` | id, proposed_by_session_id, machine_ids uuid[], steps jsonb, rationale, risk, status (`proposed\|approved\|rejected\|expired`), approved_by null → `admins`, approved_at, rejected_reason |
+| `remediation_dispatches` | id, proposal_id, machine_id, envelope_digest, nonce, expires_at, status (`dispatched\|succeeded\|failed\|expired`), report_id null |
 
 ### MDM
 
@@ -81,6 +85,10 @@ primary keys (time-ordered) `[impl]`. All timestamps `timestamptz`.
 ## Invariants enforced in the database
 
 - `approvals.approved_by` references `admins` (agents cannot appear) [AGT-05].
+- `remediation_proposals.approved_by` references `admins`. A check constraint
+  requires `approved_by` and `approved_at` when status is `approved`.
+  `remediation_dispatches` rows can only be created for approved proposals
+  and listed machines [AGT-08].
 - Unique active direct assignment per machine; unique per group.
 - `machine_generations` has at most one `is_last_working = true` per machine
   (partial unique index) [DEP-05].
