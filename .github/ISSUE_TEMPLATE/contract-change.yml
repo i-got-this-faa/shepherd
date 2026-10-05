@@ -1,0 +1,29 @@
+name: Contract Change
+description: Propose an API, schema, or RPC contract modification across lanes
+title: "feat(contracts): <title>"
+labels: ["area:contracts", "type:task", "lane:shared"]
+body:
+  - type: markdown
+    attributes:
+      value: "### Cross-Lane Contract Change Proposal"
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: Why does the contract need to change?
+    validations:
+      required: true
+  - type: textarea
+    id: affected
+    attributes:
+      label: Affected Subsystems
+      description: Which services, daemons, or tools consume this contract?
+    validations:
+      required: true
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: Backward Compatibility & Fixtures
+      description: Note versioning plan and fixture updates under packages/contracts/
+    validations:
+      required: true

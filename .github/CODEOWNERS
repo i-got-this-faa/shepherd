@@ -1,0 +1,22 @@
+# Global fallback
+* @i-got-this-faa/maintainers
+
+# Shared lane
+/packages/contracts/ @i-got-this-faa/maintainers
+/infra/ @i-got-this-faa/maintainers
+/.github/ @i-got-this-faa/maintainers
+/Makefile @i-got-this-faa/maintainers
+/go.mod @i-got-this-faa/maintainers
+/go.sum @i-got-this-faa/maintainers
+/internal/ @i-got-this-faa/maintainers
+/docs/ @i-got-this-faa/maintainers
+
+# Server lane
+/apps/control-plane/ @i-got-this-faa/maintainers
+/apps/build-worker/ @i-got-this-faa/maintainers
+/nix/modules/ @i-got-this-faa/maintainers
+
+# Node lane
+/apps/node-daemon/ @i-got-this-faa/maintainers
+/networking/ @i-got-this-faa/maintainers
+/tools/ @i-got-this-faa/maintainers

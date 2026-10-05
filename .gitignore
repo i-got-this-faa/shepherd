@@ -4,6 +4,7 @@ node_modules/
 .DS_Store
 
 # Local build and test output
+bin/
 dist/
 coverage/
 tmp/

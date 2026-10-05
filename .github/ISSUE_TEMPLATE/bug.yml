@@ -1,0 +1,28 @@
+name: Bug
+description: Report a broken behavior, test failure, or regression
+title: "fix(<area>): <title>"
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: "### Bug Report"
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What went wrong
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction Steps
+      description: Exact commands or state that trigger the issue
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected vs. Actual Behavior
+    validations:
+      required: true

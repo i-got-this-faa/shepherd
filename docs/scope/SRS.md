@@ -99,10 +99,10 @@ tested. Exact versions must be pinned with the implementation and release.
 | Windows configuration | Signed JSON plans and native Windows resource providers | Selected execution contract; provider implementation language and APIs require an implementation specification |
 | Web console | Next.js 16 | Selected framework for the browser-based administrator GUI; exact 16.x release and UI component library remain to be selected |
 
-Go, database, Nix, runtime, and platform versions are deliberately unspecified
-until an implementation pins and tests them. Node.js versus another compatible
-TypeScript runtime, RPC encoding, build tooling, and deployment
-packaging are implementation choices. No framework or version is required merely
+Go, database, Nix, and platform versions are selected by the implementation
+specifications and pinned through the repository toolchain. Bun is the selected
+TypeScript runtime and package manager. RPC encoding and deployment packaging
+remain implementation choices. No framework or version is required merely
 because it appeared in an earlier proposal.
 
 ### Deployment dependencies
