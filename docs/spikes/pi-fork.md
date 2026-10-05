@@ -395,11 +395,17 @@ Existing issues:
 
 New issues filed from this spike:
 
-- Tier 1 probe catalog
-- Tier 2 read-only sandbox
-- Remediation pipeline (server and node)
-- Findings triage and escalation
-- Console escalations inbox and remediation review
-- Native provider support
+| Issue | Key | Lane | Weeks |
+|---|---|---|---|
+| #256 Native model providers: Anthropic, Bedrock, Google, Vertex | T18.11 | Server | 7–8 |
+| #257 Diagnostic probe catalog (Tier 1) | T10.18 | Node | 9–10 |
+| #258 Read-only diagnostic sandbox (Tier 2) | T10.19 | Node | 9–10 |
+| #259 Remediation proposals, admin approval, signing, and dispatch | T18.13 | Server | 9–10 |
+| #260 Signed remediation executor (Tier 3) in the daemon | T10.20 | Node | 9–10 |
+| #261 Node findings, central triage-finding workflow, and escalations | T18.12 | Server | 9–10 |
+| #262 Console: escalations inbox and remediation review | T17.22 | Server | 9–10 |
 
-The issue numbers are listed on #53.
+These add 7 estimate points to weeks 9–10 (L = 2, M = 1), split across
+both lanes, and 0.5 to weeks 7–8. If weeks 9–10 overflow, defer the macOS
+work in #257 and the Windows JEA half of #258 first. Linux, Windows probes, and the remediation
+path are what make the escalation flow demonstrable.
