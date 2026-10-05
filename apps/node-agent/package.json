@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "echo 'node-agent build placeholder'",
+    "test": "echo 'node-agent test placeholder'",
     "typecheck": "echo 'node-agent typecheck placeholder'"
   }
 }

@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "echo 'contracts build placeholder'",
+    "test": "echo 'contracts test placeholder'",
     "typecheck": "echo 'contracts typecheck placeholder'"
   }
 }

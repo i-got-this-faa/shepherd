@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "echo 'pi-agent build placeholder'",
+    "test": "echo 'pi-agent test placeholder'",
     "typecheck": "echo 'pi-agent typecheck placeholder'"
   }
 }

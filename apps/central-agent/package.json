@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "echo 'central-agent build placeholder'",
+    "test": "echo 'central-agent test placeholder'",
     "typecheck": "echo 'central-agent typecheck placeholder'"
   }
 }

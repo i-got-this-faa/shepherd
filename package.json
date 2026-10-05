@@ -14,6 +14,7 @@
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "test": "bun test",
+    "test:workspaces": "bun run --filter '*' test",
     "typecheck": "bun run --filter '*' typecheck"
   },
   "devDependencies": {

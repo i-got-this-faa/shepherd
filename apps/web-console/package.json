@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "echo 'web-console build placeholder'",
+    "test": "echo 'web-console test placeholder'",
     "typecheck": "echo 'web-console typecheck placeholder'"
   }
 }
