@@ -18,16 +18,53 @@ func TestPAE(t *testing.T) {
 }
 
 func TestCanonicalJSON(t *testing.T) {
-	// Unordered JSON with whitespace
-	rawJSON := []byte("{\n  \"z\": 1,\n  \"a\": 2\n}")
-	canonical, err := CanonicalizeJSON(rawJSON)
-	if err != nil {
-		t.Fatalf("failed to canonicalize: %v", err)
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{
+			name:     "unordered keys with whitespace",
+			input:    "{\n  \"z\": 1,\n  \"a\": 2\n}",
+			expected: `{"a":2,"z":1}`,
+		},
+		{
+			name: "RFC 8785 preserves HTML chars without escaping",
+			// Go default json.Marshal escapes < as \u003c, > as \u003e, and & as \u0026.
+			// RFC 8785 requires raw <, >, and & characters.
+			input:    `{"html": "<script>alert('a & b > c');</script>"}`,
+			expected: `{"html":"<script>alert('a & b > c');</script>"}`,
+		},
+		{
+			name: "RFC 8785 preserves raw UTF-8 characters",
+			// UTF-8 characters must not be escaped into \uXXXX.
+			input:    `{"cafe": "Caf\u00e9", "greeting": "\u65e5\u672c\u8a9e"}`,
+			expected: `{"cafe":"Café","greeting":"日本語"}`,
+		},
+		{
+			name: "RFC 8785 UTF-16 code unit key sorting",
+			// In UTF-16 code units, U+0041 ('A') < U+0061 ('a') < U+00E9 ('é') < U+1F600 (surrogate 0xD83D) < U+FFFD (0xFFFD)
+			input:    `{"a": 1, "A": 2, "é": 3, "1": 4}`,
+			expected: `{"1":4,"A":2,"a":1,"é":3}`,
+		},
+		{
+			name: "RFC 8785 number formatting",
+			// Negative zero becomes 0; integers have no decimals; exponents follow ES6.
+			input:    `{"zero": -0, "float": 12.3400, "large": 1e2, "small": 0.0001}`,
+			expected: `{"float":12.34,"large":100,"small":0.0001,"zero":0}`,
+		},
 	}
 
-	expected := `{"a":2,"z":1}`
-	if string(canonical) != expected {
-		t.Fatalf("expected %s, got %s", expected, string(canonical))
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			canonical, err := CanonicalizeJSON([]byte(tc.input))
+			if err != nil {
+				t.Fatalf("failed to canonicalize %s: %v", tc.name, err)
+			}
+			if string(canonical) != tc.expected {
+				t.Errorf("[%s]\nexpected: %s\ngot:      %s", tc.name, tc.expected, string(canonical))
+			}
+		})
 	}
 }
 
@@ -231,3 +268,45 @@ func TestMultipleSignatures(t *testing.T) {
 		t.Fatalf("expected verified kid %s, got %s", kid1, verifiedKid)
 	}
 }
+
+func TestSignAndVerifyRFC8785Conformance(t *testing.T) {
+	pub, priv, err := ed25519.GenerateKey(rand.Reader)
+	if err != nil {
+		t.Fatalf("failed to generate key: %v", err)
+	}
+
+	keyID := "plan-rfc8785"
+	signer := NewEd25519Signer(keyID, priv)
+	keys := NewKeySet()
+	_ = keys.Add(keyID, pub)
+
+	// Uncanonical payload containing HTML characters (<, >) and raw UTF-8 (Café)
+	rawPayload := []byte("{\n  \"command\": \"powershell -Command \\\"$x < 10 && $y > 20\\\"\",\n  \"location\": \"Caf\\u00e9\"\n}")
+	expectedCanonical := `{"command":"powershell -Command \"$x < 10 && $y > 20\"","location":"Café"}`
+
+	env, err := Sign(PayloadTypePlan, rawPayload, signer)
+	if err != nil {
+		t.Fatalf("failed to sign RFC 8785 payload: %v", err)
+	}
+
+	decodedPayload, err := base64.StdEncoding.DecodeString(env.Payload)
+	if err != nil {
+		t.Fatalf("failed to decode envelope payload: %v", err)
+	}
+
+	if string(decodedPayload) != expectedCanonical {
+		t.Fatalf("envelope payload is not RFC 8785 canonical:\nexpected: %s\ngot:      %s", expectedCanonical, string(decodedPayload))
+	}
+
+	verified, kid, err := Verify(env, keys, PayloadTypePlan)
+	if err != nil {
+		t.Fatalf("failed to verify RFC 8785 envelope: %v", err)
+	}
+	if kid != keyID {
+		t.Fatalf("expected kid %s, got %s", keyID, kid)
+	}
+	if !bytes.Equal(verified, []byte(expectedCanonical)) {
+		t.Fatalf("expected verified payload %q, got %q", expectedCanonical, string(verified))
+	}
+}
+

@@ -22,7 +22,7 @@
         };
 
         mkShepherdBinary = { pname, subPackages, description }:
-          pkgs.buildGoModule {
+          pkgs.buildGo127Module {
             inherit pname version src subPackages;
             vendorHash = null;
 
