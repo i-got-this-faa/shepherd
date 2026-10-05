@@ -2,17 +2,28 @@
 
 ## Pi fork (`packages/pi/`)
 
-Upstream: `github.com/badlogic/pi-mono`. Import only what Shepherd needs:
+Upstream: `github.com/earendil-works/pi` (formerly `badlogic/pi-mono`),
+pinned to release tag `v1.0.3` (`d78dc83d`). The file manifest, patches, and
+evidence are in the [Pi fork spike](../spikes/pi-fork.md). Import only what
+Shepherd needs:
 
-- `packages/pi/ai` ← upstream `packages/ai` (unified LLM API). Keep the
-  OpenAI-compatible provider (chat completions + tool calls + streaming);
-  other providers may stay but are untested/unsupported in V1 [AGT-02].
-- `packages/pi/agent` ← upstream `packages/agent` (agent loop, tool
-  execution, session state). Remove TUI/coding-agent CLI, file-system and
-  shell tools.
-- Record upstream commit, retained paths, license (MIT) notices, local patches
-  in `packages/pi/UPSTREAM.md`; `tools/upstream/pi-sync.sh` re-applies patches
-  on a new upstream revision.
+- `packages/pi/ai` (`@shepherd/pi-ai`) ← upstream `packages/ai` (unified LLM
+  API), trimmed to the import closure of the core entry point plus the
+  `openai-completions` wire API (Chat Completions, tool calls, streaming)
+  [AGT-02]. The other wire APIs, provider factories, the model catalog, OAuth,
+  and the CLI are not imported.
+- `packages/pi/agent` (`@shepherd/pi-agent`) ← upstream `packages/agent`
+  (agent loop, tool execution, session state), imported whole. It contains no
+  TUI, file-system, or shell tools. Those live in upstream `coding-agent`,
+  which is excluded along with `tui` and the other upstream packages.
+- Record upstream tag and commit, retained paths, license (MIT) notices, and
+  local patches in `packages/pi/UPSTREAM.md`. The file manifest goes in
+  `packages/pi/upstream-files.txt` and patches in `packages/pi/patches/`.
+  `tools/upstream/pi-sync.sh <tag>` re-copies the manifest, checks the import
+  closure, and re-applies the patches on a new upstream release tag.
+- Shepherd behavior belongs in the runners, not in fork patches. Enforce max
+  turns and token budget through the agent's `finishTurn` / `prepareRequest`
+  hooks.
 - Tests in `tests/pi/`: tool call round trip, streaming, error on provider
   outage, max-turns and token budget enforcement, against a mock
   OpenAI-compatible server (recorded fixtures) and one real provider smoke test
@@ -49,6 +60,10 @@ system prompt states the authority limits; outputs are rendered as text.
 
 Config: `AGENT_BASE_URL`, `AGENT_MODEL`, `AGENT_API_KEY` (from server secrets),
 timeouts, max tokens. Disabled when unset → console shows AI off [AGT-01].
+`AGENT_COMPAT` (optional JSON) overrides Pi's `OpenAICompletionsCompat` flags.
+Pi treats an unrecognized base URL as real OpenAI (`developer` role, `store`,
+`max_completion_tokens`). Self-hosted endpoints often need these turned off.
+The AGT-02 provider test records which compat set passed.
 
 ## Node agent (`apps/node-agent/`)
 

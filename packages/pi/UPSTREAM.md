@@ -1,9 +1,14 @@
 # Pi fork provenance
 
-Planned upstream: https://github.com/badlogic/pi-mono
+Upstream: https://github.com/earendil-works/pi (formerly `badlogic/pi-mono`).
 
-No source has been imported and no upstream revision has been pinned yet.
-Record the exact revision, retained packages, licenses/notices, local patches,
-and update procedure when importing the fork. Keep the model integration and
-headless agent runtime; exclude the interactive TUI. Fork maintenance tooling
+Planned pin: release tag `v1.0.3`, commit
+`d78dc83d633229d12f8b79631384c4c2717c399f` (2026-10-05). License: MIT.
+The retained file manifest, local patch queue, and sync procedure are in
+[docs/spikes/pi-fork.md](../../docs/spikes/pi-fork.md).
+
+No source has been imported yet; #189 performs the import. When importing,
+record the exact revision, retained paths, licenses/notices, local patches,
+and update procedure here. Keep the model integration and headless agent
+runtime; exclude the interactive TUI and coding agent. Fork maintenance tooling
 belongs under `tools/upstream/`, and behavior checks under `tests/pi/`.
