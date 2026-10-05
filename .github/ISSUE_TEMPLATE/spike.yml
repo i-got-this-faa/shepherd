@@ -1,0 +1,22 @@
+name: Spike
+description: Time-boxed technical investigation with a written outcome
+title: "spike(<area>): <title>"
+labels: ["type:spike"]
+body:
+  - type: markdown
+    attributes:
+      value: "### Time-Boxed Investigation"
+  - type: input
+    id: question
+    attributes:
+      label: Technical Question
+      description: Specific uncertainty being resolved
+    validations:
+      required: true
+  - type: textarea
+    id: criteria
+    attributes:
+      label: Deliverable
+      description: What written summary or benchmark document will result
+    validations:
+      required: true

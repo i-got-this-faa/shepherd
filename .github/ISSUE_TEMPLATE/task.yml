@@ -1,0 +1,33 @@
+name: Task
+description: Implementation unit for a feature or epic
+title: "feat(<area>): <title>"
+labels: ["type:task"]
+body:
+  - type: markdown
+    attributes:
+      value: "### Implementation Task"
+  - type: input
+    id: spec
+    attributes:
+      label: Spec Reference
+      description: Section in docs/specs/ that defines this task
+      placeholder: "e.g., docs/specs/01-repository-and-tooling.md#workspaces"
+    validations:
+      required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What system change will be delivered
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Acceptance Criteria
+      description: Checkable list of conditions that must pass
+      value: |
+        - [ ] Builds and compiles cleanly
+        - [ ] make check passes
+    validations:
+      required: true
