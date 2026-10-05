@@ -29,6 +29,12 @@ shepherd/
 Run all checks from repository root:
 
 ```bash
+# Enter the reproducible Nix development shell
+nix develop
+
+# Run quality gate within the Nix dev shell
+nix develop -c make check
+
 # Build all system binaries into bin/
 make build
 

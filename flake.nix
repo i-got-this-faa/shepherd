@@ -73,6 +73,14 @@
           };
         };
 
+        checks = {
+          shepherd = self.packages.${system}.shepherd;
+          shepherd-node = self.packages.${system}.shepherd-node;
+          shepherd-builder = self.packages.${system}.shepherd-builder;
+          shepherd-derper = self.packages.${system}.shepherd-derper;
+          shepherdctl = self.packages.${system}.shepherdctl;
+        };
+
         devShells.default = pkgs.mkShellNoCC {
           packages = with pkgs; [
             go
@@ -80,9 +88,15 @@
             golangci-lint
             buf
             protoc-gen-go
+            protoc-gen-connect-go
+            nodejs_22
+            pnpm
+            postgresql
+            attic-client
             sqlc
             goose
             gitleaks
+            nixfmt
             jq
             git
           ];
