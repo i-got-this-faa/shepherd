@@ -83,14 +83,13 @@
 
         devShells.default = pkgs.mkShellNoCC {
           packages = with pkgs; [
-            go
+            go_1_27
             gopls
             golangci-lint
             buf
             protoc-gen-go
             protoc-gen-connect-go
-            nodejs_22
-            pnpm
+            bun
             postgresql
             attic-client
             sqlc

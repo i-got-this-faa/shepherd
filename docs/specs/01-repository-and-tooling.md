@@ -25,23 +25,24 @@ are expected); component-private code stays inside each app's `internal/`.
 
 ### TypeScript `[impl]`
 
-pnpm workspace at the root (`pnpm-workspace.yaml`):
+Bun workspace at the root (`package.json`):
 
 - `apps/web-console` — Next.js 16 (App Router).
-- `apps/central-agent` — Node.js service hosting the central Pi runtime.
-- `apps/node-agent` — Node.js process launched by the daemon on demand.
+- `apps/central-agent` — Bun service hosting the central Pi runtime.
+- `apps/node-agent` — Bun process launched by the daemon on demand.
 - `packages/pi/ai`, `packages/pi/agent` — the stripped Pi fork.
 - `packages/contracts/gen/ts` — generated TS clients/types.
 
-Use Node.js LTS pinned in `.nvmrc` and in the Nix dev shell. TypeScript strict
-mode everywhere. Biome for lint+format (one tool, fast) `[impl]`.
+Use Bun from the pinned Nix development shell for the TypeScript runtime and
+package management. TypeScript strict mode everywhere. Biome for lint+format
+(one tool, fast) `[impl]`.
 
 ### Nix
 
 The repository root gets a `flake.nix` that provides:
 
 - `devShells.default`: Go, gopls, golangci-lint, buf, protoc-gen-go,
-  protoc-gen-connect-go, Node.js, pnpm, postgresql (for local tests), attic-client,
+  protoc-gen-connect-go, Bun, postgresql (for local tests), attic-client,
   sqlc, goose, gitleaks, nixfmt, jq, qemu/libvirt tooling hints.
 - `packages.<system>.shepherd-node`, `shepherd`, `shepherd-builder` via
   `buildGoModule` (vendor hash pinned).
@@ -68,7 +69,7 @@ Workflows under `.github/workflows/`:
 
 | Workflow | Trigger | Jobs |
 |---|---|---|
-| `ci.yml` | PR, push to main | `go` (vet, golangci-lint, `go test ./...` with race on linux, cross-compile matrix incl. windows/darwin), `ts` (pnpm install --frozen-lockfile, biome, typecheck, vitest), `contracts` (buf lint, buf breaking against main, regenerate-and-diff), `nix` (`nix flake check` on ubuntu with Nix installer), `secrets` (gitleaks) |
+| `ci.yml` | PR, push to main | `go` (vet, golangci-lint, `go test ./...` with race on linux, cross-compile matrix incl. windows/darwin), `ts` (`bun install --frozen-lockfile`, biome, typecheck, vitest), `contracts` (buf lint, buf breaking against main, regenerate-and-diff), `nix` (`nix flake check` on ubuntu with Nix installer), `secrets` (gitleaks) |
 | `windows.yml` | PR touching node-daemon | `go test ./apps/node-daemon/...` on `windows-latest` including provider integration tests that are safe on runners (registry under HKCU test key, services read-only, env read-only) |
 | `integration.yml` | PR label `integration`, nightly | docker-compose: postgres + FBS + Attic + control plane + fakenode; runs contract and API integration tests |
 | `release.yml` | tag `v*` | build all binaries, sign checksums, build NixOS/Windows ISOs (self-hosted runner optional), publish release |
@@ -102,5 +103,5 @@ Required checks on `main`: `go`, `ts`, `contracts`, `secrets`.
 
 - `nix develop -c make check` passes on a fresh clone on Linux.
 - `go build ./...` cross-compiles `shepherd-node` for windows/amd64 and darwin/arm64.
-- `pnpm -r build` succeeds.
+- `bun run --workspaces build` succeeds.
 - CI is green on an empty-feature PR and red on a deliberately broken contract.

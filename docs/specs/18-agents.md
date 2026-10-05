@@ -20,7 +20,7 @@ Upstream: `github.com/badlogic/pi-mono`. Import only what Shepherd needs:
 
 ## Central agent (`apps/central-agent/`)
 
-Node.js service exposing `shepherd.agent.v1.CentralAgentService` to the
+Bun service exposing `shepherd.agent.v1.CentralAgentService` to the
 control plane only. The control plane is the **tool host**: the agent calls
 tools via `ToolHostService`, and every tool call is authorized and recorded by
 the Go side (`agent_tool_calls`).
@@ -52,7 +52,7 @@ timeouts, max tokens. Disabled when unset → console shows AI off [AGT-01].
 
 ## Node agent (`apps/node-agent/`)
 
-Short-lived Node.js process started by `shepherd-node` (`agentrunner`) on
+Short-lived Bun process started by `shepherd-node` (`agentrunner`) on
 demand (console request for machine-local analysis, or after a failed apply
 when enabled). Runs as an unprivileged user (Windows: virtual service account
 `NT SERVICE\shepherd-agent`; Linux/macOS: `_shepherd-agent`).

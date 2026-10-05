@@ -50,7 +50,7 @@ combinations are listed as supported.
 ## Release evidence (per SRS)
 
 `docs/release/v1-evidence.md`: dependency versions/revisions (Go modules,
-pnpm lock, flake.lock, Tailcat revision, FBS revision/digest, Attic revision,
+`bun.lock`, flake.lock, Tailcat revision, FBS revision/digest, Attic revision,
 NanoMDM revision, Pi upstream commit), licenses/notices (Tailcat BSD-3,
 FBS GPL-3.0 as separate service, Pi MIT, Attic Apache-2.0, NanoMDM MIT),
 compatibility tests run, measured deployment/drift/recovery timings in the
