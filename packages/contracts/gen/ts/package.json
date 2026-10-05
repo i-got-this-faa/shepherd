@@ -1,0 +1,10 @@
+{
+  "name": "@shepherd/contracts",
+  "version": "0.1.0-dev",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "echo 'contracts build placeholder'",
+    "typecheck": "echo 'contracts typecheck placeholder'"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "@shepherd/pi-agent",
+  "version": "0.1.0-dev",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "echo 'pi-agent build placeholder'",
+    "typecheck": "echo 'pi-agent typecheck placeholder'"
+  }
+}
