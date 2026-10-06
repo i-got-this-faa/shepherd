@@ -165,6 +165,10 @@ platform. None spawns a shell:
 | Updates | `updates.status` (Windows Update, `nixos-version`, `softwareupdate --list` via API) |
 | Shepherd | `shepherd.journal(tail)`, `shepherd.lastPlan`, `shepherd.daemonLog(tail)` |
 
+Windows and NixOS probes are P0 (#257). macOS probes are P1 (#263): if
+they are cut from V1, macOS agents fall back to the existing `node.*` tools
+and Tier 3.
+
 **Tier 2 read-only sandbox.** The daemon runs the command and returns
 stdout/stderr (redacted, 64 KiB cap) plus the exit code:
 
@@ -189,7 +193,8 @@ stdout/stderr (redacted, 64 KiB cap) plus the exit code:
   `Get-NetIPConfiguration`, `Get-ItemProperty`, `Test-NetConnection`
   restricted to allowlisted hosts, …), with `ValidatePattern` /
   `ValidateSet` on paths and keys. `node.shell` takes a pipeline of
-  allowlisted cmdlets, not arbitrary PowerShell.
+  allowlisted cmdlets, not arbitrary PowerShell. This is P1 (#264): if it
+  is cut from V1, Windows uses Tier 1 and Tier 3 like macOS.
 - **macOS:** no Tier 2 in V1. There is no supported sandbox
   (`sandbox-exec` is deprecated), so macOS uses Tier 1 and Tier 3.
 

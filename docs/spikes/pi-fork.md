@@ -392,20 +392,25 @@ Existing issues:
 | #220 Model proxy | `NodeAgentService.ProxyCompletion` through the central agent service, using the `proxy.ts` event shape. |
 | #201 / #221 Node IPC and node agent | Extended IPC surface and the tiered diagnostic tools. `submitFinding` at session end. |
 | #222 Agent authorization tests | Add `ApproveRemediation` denial for agent principals. |
+| #31 / #34 / #56 Contracts | `node.v1` gets `SubmitAgentFinding`, `ProposeRemediation`, `RunAgent`, and `RunRemediation`. `finding.v1` and `remediation.v1` JSON Schemas with fixtures go in #34. `agent.v1` gets `TriageFinding`, `ProxyCompletion`, `UploadSession`, and the node-agent IPC methods. These land in weeks 3–4, ahead of every consumer. |
 
 New issues filed from this spike:
 
 | Issue | Key | Lane | Weeks |
 |---|---|---|---|
 | #256 Native model providers: Anthropic, Bedrock, Google, Vertex | T18.11 | Server | 7–8 |
-| #257 Diagnostic probe catalog (Tier 1) | T10.18 | Node | 9–10 |
-| #258 Read-only diagnostic sandbox (Tier 2) | T10.19 | Node | 9–10 |
+| #257 Diagnostic probe catalog (Tier 1): Windows and NixOS | T10.18 | Node | 9–10 |
+| #258 Read-only diagnostic sandbox (Tier 2): Linux | T10.19 | Node | 9–10 |
 | #259 Remediation proposals, admin approval, signing, and dispatch | T18.13 | Server | 9–10 |
 | #260 Signed remediation executor (Tier 3) in the daemon | T10.20 | Node | 9–10 |
 | #261 Node findings, central triage-finding workflow, and escalations | T18.12 | Server | 9–10 |
 | #262 Console: escalations inbox and remediation review | T17.22 | Server | 9–10 |
+| #263 Diagnostic probes for macOS (Tier 1), **P1** | T10.21 | Node | 9–10 |
+| #264 Windows JEA read-only diagnostic endpoint (Tier 2), **P1** | T10.22 | Node | 9–10 |
 
-These add 7 estimate points to weeks 9–10 (L = 2, M = 1), split across
-both lanes, and 0.5 to weeks 7–8. If weeks 9–10 overflow, defer the macOS
-work in #257 and the Windows JEA half of #258 first. Linux, Windows probes, and the remediation
-path are what make the escalation flow demonstrable.
+The P0 issues add 6.5 estimate points to weeks 9–10 (L = 2, M = 1,
+S = 0.5), split across both lanes, and 0.5 to weeks 7–8. #263 and #264 add
+2 more points at P1: they are the cut line. If weeks 9–10 overflow, drop
+#263 first, then #264. Without them, macOS and Windows keep Tier 3 and
+Windows keeps Tier 1. Linux, Windows probes, and the remediation path are
+what make the escalation flow demonstrable.
