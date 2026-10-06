@@ -1,4 +1,0 @@
-packages:
-  - "apps/*"
-  - "packages/contracts/gen/ts"
-  - "packages/pi/*"
