@@ -39,7 +39,7 @@ Use **DSSE** (Dead Simple Signing Envelope):
 
 - PAE (pre-authentication encoding) per DSSE spec prevents type confusion.
 - Payload types: `plan.v1`, `target.v1`, `instruction.v1`, `peer-list.v1`,
-  `key-set.v1`.
+  `key-set.v1`, `remediation.v1` [AGT-08].
 - Library: `internal/signing` (Go) with `Sign(payloadType, payload, signer)`
   and `Verify(envelope, trustedKeys, expectedType) (payload, keyid, error)`.
   TS verification helper in contracts for the console (display only).
@@ -50,6 +50,20 @@ signature against trusted key set → payload schema → `machineId` equals self
 heartbeat (anti-rollback: never accept a plan whose `createdAt` is older than
 the last accepted plan unless the instruction is `Recover` signed for that
 generation) [DEP-01, DEP-05].
+
+`remediation.v1` envelopes are signed with the plan key and verified in this
+order:
+
+1. envelope parse
+2. payload type
+3. signature against the trusted key set
+4. payload schema
+5. `machineId` equals self
+6. `expiresAt` in the future and no more than 15 minutes after `createdAt`
+7. `nonce` not seen before (the daemon persists executed nonces until expiry)
+
+The daemon runs the steps exactly as signed and never runs a remediation that
+arrives over local IPC [AGT-08].
 
 ## Rotation
 
@@ -91,6 +105,15 @@ generation) [DEP-01, DEP-05].
   `generationId` equals the node's approved target.
 - Node agent repair requests go through the daemon to `RequestRepair`; the
   server checks auto-fix and returns a signed `Reapply` instruction or denies.
+- Remediation commands [AGT-08] need a separate approval:
+  - Only an authenticated admin can approve one, per proposal, through
+    `ApproveRemediation`, which rejects agent principals.
+  - The approval covers exactly the steps and machines listed in that
+    proposal, and nothing else.
+  - The server signs one `remediation.v1` envelope per machine, valid for
+    15 minutes or less.
+  - A remediation approval never creates a configuration approval and never
+    changes a target.
 
 ## Audit log [ADM-05]
 
@@ -106,8 +129,17 @@ a field allow-list.
 - Stolen enrollment token reuse; token on lost USB.
 - Compromised node attempting to fetch other nodes' plans or peer data.
 - Peer serving tampered chunks (must fail NAR hash verification).
-- Agent prompt injection via machine-reported strings (logs, package names) —
-  agents have no mutation tools beyond drafts/repair requests.
+- Agent prompt injection via machine-reported strings (logs, package names,
+  node findings relayed to the central agent). Agents have no mutation tools
+  beyond drafts, repair requests, and remediation *proposals*. Every
+  remediation needs an admin to approve the exact steps, shown verbatim.
+- Tier 2 sandbox escape: write attempts, network egress, secret reads, and
+  privilege escalation from `node.shell` on Linux and through the JEA
+  endpoint on Windows.
+- Secret exfiltration through diagnostic output. The checks are: redaction,
+  denied secret paths, no network from the sandbox, and output that goes only
+  to the control plane.
+- Remediation replay, expiry, machine mismatch, and step tampering.
 - Console XSS via reported strings (React escaping + CSP).
 - SSRF via custom Nix fetchers in build sandbox (build worker network policy).
 - DERP relay sees only encrypted WireGuard packets.

@@ -59,6 +59,8 @@ heartbeat interval).
 | `freshness_sweep` | every 30 s | Marks machines offline/stale [DEP-04] |
 | `drift_autofix` | drift report with auto-fix on | Issues signed `Reapply` for approved generation only [AGT-04] |
 | `recovery_watch` | failed activation report | Ensures node recovered to last working; escalates if not |
+| `finding_triage` | new `agent_findings` row, AI enabled | Calls `CentralAgentService.TriageFinding`; records the escalation or closes the finding [AGT-08] |
+| `remediation_dispatch` | remediation proposal approved | Signs one `remediation.v1` envelope per listed machine (expiry 15 minutes or less) and queues `RunRemediation`; marks dispatches `expired` when they are not acknowledged in time [AGT-08] |
 | `peer_lists` | membership change | Recomputes peer admission lists per site |
 | `retention` | daily | Prunes reports/heartbeats per [05](05-database.md) |
 

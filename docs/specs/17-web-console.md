@@ -17,7 +17,7 @@ authority is checked by the Go API.
 | `/login` | Admin login (+TOTP when enabled) | ADM-04 |
 | `/` (Overview) | Fleet health: online/offline/stale, deployments in progress, open drift, recent failures, capability gaps | DEP-03/04 |
 | `/machines` | Inventory table: hostname, platform/edition, status, effective profile (and source: direct/group), assigned target vs active generation, last seen (stale label), drift count, auto-fix state | PRF-04, DEP-04 |
-| `/machines/[id]` | Tabs: Overview (three separate fields: assigned target, active configuration, last transition result), Reports, Drift, Capabilities/omitted settings, Inventory, Managers detected, Timeline (audit), Agent (node agent session), Actions (reapply, toggle auto-fix, assign profile, remove) | PRF-04, DEP-03, ADM-02/03 |
+| `/machines/[id]` | Tabs: Overview (three separate fields: assigned target, active configuration, last transition result), Reports, Drift, Capabilities/omitted settings, Inventory, Managers detected, Timeline (audit), Agent (node agent sessions with probe and sandbox transcripts, findings, remediations), Actions (reapply, toggle auto-fix, assign profile, remove) | PRF-04, DEP-03, ADM-02/03 |
 | `/groups`, `/groups/[id]` | Membership, assigned profile, conflicts | PRF-01..03 |
 | `/profiles`, `/profiles/[id]` | Profile overview, current revision, assigned groups/machines, auto-fix default, maintenance windows, rollout policy | PRF, DEP-07 |
 | `/profiles/[id]/configure` | **Configurator** (structured GUI) editing a draft | CFG-01..03 |
@@ -27,8 +27,10 @@ authority is checked by the Go API.
 | `/drift` | Fleet drift findings, filter by profile/resource, bulk reapply (approved generation only) | DEP-03, AGT-04 |
 | `/enrollment` | Create tokens (platform, initial group, expiry, max uses), download bundle/ISO build instructions, macOS profile download, revoke | ADM-01/04 |
 | `/agents` | Central agent chat: ask about failures, request drafts; shows tool calls and that drafts need approval | AGT-01..05 |
+| `/escalations`, `/escalations/[id]` | Inbox of central agent escalations. Each shows: the summary, correlated machines, raw node finding evidence next to the agent summary, session links, and the linked draft or remediation. Acknowledge and resolve actions | AGT-07/08 |
+| `/remediations/[id]` | Remediation review: every step verbatim (shell, argv/script, run-as, timeout), target machines, evidence, a managed-resource warning, then Approve/Reject (admins only; absent for agent principals); per-machine dispatch results with redacted output | AGT-08 |
 | `/audit` | Audit log with filters, export CSV | ADM-05 |
-| `/settings` | Admins, AI provider endpoint/model (key write-only), DERP/mesh status, keys (rotation), Attic/FBS health, capability table | AGT-02, ADM-04 |
+| `/settings` | Admins, AI provider (OpenAI-compatible, Anthropic, Bedrock, Google, Vertex), endpoint/model, credentials (write-only), DERP/mesh status, keys (rotation), Attic/FBS health, capability table | AGT-02, ADM-04 |
 
 AI-dependent UI degrades gracefully: when the agent is disabled/unreachable,
 the Agents page and "Explain" buttons show disabled state; every other page

@@ -27,9 +27,9 @@ Under `packages/contracts/proto/shepherd/`:
 |---|---|---|
 | `shepherd.common.v1` | — | Ids, timestamps, Platform enum, Capability, ResourceRef, Error detail types |
 | `shepherd.enroll.v1` | `EnrollmentService` | `Enroll`, `GetBootstrap` |
-| `shepherd.node.v1` | `NodeService` | `Heartbeat`, `GetTarget`, `GetPlan`, `SubmitReport`, `SubmitInventory`, `SubmitDriftReport`, `RequestRepair`, `GetPeers`, `AckInstruction` |
+| `shepherd.node.v1` | `NodeService` | `Heartbeat`, `GetTarget`, `GetPlan`, `SubmitReport`, `SubmitInventory`, `SubmitDriftReport`, `RequestRepair`, `SubmitAgentFinding`, `ProposeRemediation`, `GetPeers`, `AckInstruction` |
 | `shepherd.console.v1` | `InventoryService`, `GroupService`, `ProfileService`, `ConfigService`, `DraftService`, `DeploymentService`, `DriftService`, `AuditService`, `EnrollmentAdminService`, `AgentService`, `SettingsService`, `AuthService` | Browser API |
-| `shepherd.agent.v1` | `CentralAgentService`, `NodeAgentService`, `ToolHostService` | Agent runtime ↔ control plane / daemon |
+| `shepherd.agent.v1` | `CentralAgentService` (`Chat`, `TriageFinding`, `Complete` stream), `NodeAgentService` (`ProxyCompletion` stream, `UploadSession`), `ToolHostService` | Agent runtime ↔ control plane / daemon; daemon ↔ node agent IPC ([10](10-node-daemon.md#local-ipc-for-node-agent-agt-06)) |
 | `shepherd.build.v1` | `BuildCallbackService` | Build worker results |
 | `shepherd.distribution.v1` | `PeerService` (manifest + chunk metadata) | Peer transfer |
 
@@ -54,8 +54,13 @@ Rules:
 - `SubmitReport` accepts the report JSON (below) as `bytes` plus a parsed
   summary for indexing; server validates against the schema.
 - `instructions[]`: `Reapply`, `Recover`, `RunDriftPass`, `Reboot` (only within
-  window), `Unenroll`, `RotateKeys`, `RefreshPeers`. Each carries an id and must
-  be acknowledged with `AckInstruction`.
+  window), `Unenroll`, `RotateKeys`, `RefreshPeers`, `RunAgent{sessionId,
+  question}` [AGT-07], and `RunRemediation{signed remediation.v1 envelope}`
+  [AGT-08]. Each carries an id and must be acknowledged with `AckInstruction`.
+- `SubmitAgentFinding` accepts the finding JSON from
+  [18](18-agents.md#findings-and-escalation-agt-08). The server rejects
+  evidence that references tool calls not recorded for that session.
+  Remediation results arrive as a report of kind `remediation`.
 - Idempotency: every mutating node RPC carries `request_id` (UUIDv7); the server
   deduplicates for 24 h.
 

@@ -26,6 +26,10 @@ apps/node-daemon/
     managers/               competing configuration manager detection [ADM-03]
     ipc/                    local API for node agent (named pipe / unix socket)
     agentrunner/            launches node agent process with restricted env
+    diag/probes/            Tier 1 typed read-only diagnostic probes per platform [AGT-07]
+    diag/sandbox/           Tier 2 read-only sandbox (systemd-run on Linux, JEA on Windows) [AGT-07]
+    diag/redact/            secret redaction for probe, sandbox, and remediation output
+    remediation/            verify and run signed remediation.v1 instructions [AGT-08]
     platform/
       windows/<provider>/   one package per provider ([11])
       linux/nixos/          activation backend ([12])
@@ -115,10 +119,41 @@ provider through: observe on clean machine, apply, verify, idempotent re-apply
 
 Named pipe `\\.\pipe\shepherd-node` (Windows, ACL SYSTEM + the agent's
 service SID) / Unix socket `/run/shepherd/node.sock` (root 0600, agent runs as
-a dedicated user added via socket credentials check). Methods: `GetStatus`,
-`GetLastReports`, `GetDriftFindings`, `GetInventory`, `ReadLogs(redacted)`,
-`RequestRepair(resourceKeys, reason)`. No method executes arbitrary commands
-or applies a plan the server has not signed.
+a dedicated user added via socket credentials check).
+
+Methods:
+
+- Reads: `GetStatus`, `GetLastReports`, `GetDriftFindings`, `GetInventory`,
+  `ReadLogs(redacted)`.
+- `RequestRepair(resourceKeys, reason)`.
+- Diagnostics [AGT-07]:
+  - `ListProbes`
+  - `RunProbe(probeId, args)`: Tier 1
+  - `RunReadOnlyShell(command, timeoutSec)`: Tier 2, on platforms with a
+    sandbox. Returns `UNIMPLEMENTED` on macOS.
+- Escalation [AGT-08]:
+  - `ProposeRemediation(steps, rationale, risk)`: stores a proposal only
+  - `SubmitFinding(finding)`
+- `ProxyCompletion(stream)`: relays model calls to the control plane under the
+  machine identity and the agent session id.
+
+The daemon records every diagnostic call against the agent session and
+redacts its output before returning it to the agent or uploading it.
+
+**No IPC method changes the machine.** The daemon applies only plans the
+server has signed. It runs a remediation only when the command arrives as a
+control-plane-signed, unexpired, single-use `remediation.v1` instruction
+through the heartbeat. A remediation never arrives over IPC [AGT-06/08].
+
+Tier 2 sandbox requirements, in [18](18-agents.md#diagnosis-tiers-agt-07):
+
+- **Linux:** a transient systemd unit running as `_shepherd-diag` with only
+  `CAP_DAC_READ_SEARCH`. The filesystem is read-only, secrets paths are
+  inaccessible, and no IP traffic is allowed.
+- **Windows:** the `ShepherdDiag` JEA endpoint in `NoLanguage` mode, with
+  allowlisted read cmdlets.
+- **Both:** a 60 s timeout and an output cap. Sandbox escape tests are part of
+  the [threat checklist](03-security-and-trust.md#threat-checklist-for-the-weeks-1112-review).
 
 ## Self-update [DEP-02]
 

@@ -140,8 +140,11 @@ The following choices supersede the earlier presentation-only classification:
 - `packages/pi/` holds the custom stripped-down Pi fork. `ai/` owns model
   integration; `agent/` owns the headless agent loop, tools, and session runtime.
   The TUI is excluded. Central and node workflows use this shared fork under
-  `apps/central-agent/` and `apps/node-agent/`. Agent mutation and approval
-  authority remain open decisions.
+  `apps/central-agent/` and `apps/node-agent/`. Agent authority is set by
+  AGT-01..08 and [spec 18](../specs/18-agents.md#authority-summary-agt-0108):
+  - node agents diagnose through daemon-executed read-only probes and sandboxes
+  - findings escalate through the central agent to admins
+  - remediation commands run only after an admin approves the exact steps
 - `apps/node-daemon/` owns the privileged node service, enrollment, IPC,
   validated plans, reconciliation, persistent journals, recovery, telemetry,
   and updates. Native provider folders cover Windows Registry, policies,
