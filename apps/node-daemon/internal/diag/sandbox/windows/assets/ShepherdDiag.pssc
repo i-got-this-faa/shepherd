@@ -1,0 +1,11 @@
+@{
+    SchemaVersion = '2.0.0.0'
+    GUID = '7f011089-c111-4052-81a8-3ed31e5b8945'
+    SessionType = 'RestrictedRemoteServer'
+    LanguageMode = 'NoLanguage'
+    RunAsVirtualAccount = $true
+    RunAsVirtualAccountGroups = @('Users')
+    RoleDefinitions = @{
+        'NT AUTHORITY\SYSTEM' = @{ RoleCapabilities = 'ShepherdDiag' }
+    }
+}

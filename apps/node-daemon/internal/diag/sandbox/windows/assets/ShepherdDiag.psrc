@@ -1,0 +1,67 @@
+@{
+    GUID = 'cce6d171-b5d2-4c4b-82f8-f7c8d0477a7a'
+    ModulesToImport = @(
+        'Microsoft.PowerShell.Management'
+        'Microsoft.PowerShell.Utility'
+        'Microsoft.PowerShell.Diagnostics'
+        'NetTCPIP'
+    )
+    VisibleProviders = @('Registry')
+    VisibleCmdlets = @(
+        @{
+            Name = 'Get-Service'
+            Parameters = @(
+                @{ Name = 'Name'; ValidatePattern = '^[A-Za-z0-9_.-]{1,128}$' }
+            )
+        }
+        @{
+            Name = 'Get-Process'
+            Parameters = @(
+                @{ Name = 'Name'; ValidatePattern = '^[A-Za-z0-9_.-]{1,128}$' }
+                @{ Name = 'Id'; ValidatePattern = '^[1-9][0-9]{0,9}$' }
+            )
+        }
+        @{
+            Name = 'Get-WinEvent'
+            Parameters = @(
+                @{ Name = 'LogName'; ValidateSet = @('Application', 'System', 'Setup') }
+                @{ Name = 'MaxEvents'; ValidatePattern = '^(?:[1-9][0-9]{0,2}|1000)$' }
+            )
+        }
+        @{
+            Name = 'Get-NetIPConfiguration'
+            Parameters = @(
+                @{ Name = 'InterfaceAlias'; ValidatePattern = '^[A-Za-z0-9 _.-]{1,128}$' }
+            )
+        }
+        @{
+            Name = 'Get-ItemProperty'
+            Parameters = @(
+                @{ Name = 'Path'; ValidateSet = @('HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion') }
+                @{ Name = 'Name'; ValidateSet = @('ProductName', 'DisplayVersion', 'CurrentBuild', 'CurrentBuildNumber', 'UBR', 'EditionID') }
+            )
+        }
+        @{
+            Name = 'Select-Object'
+            Parameters = @(
+                @{ Name = 'Property'; ValidateSet = @(
+                    'CurrentBuild', 'CurrentBuildNumber', 'DisplayVersion',
+                    'EditionID', 'IPv4Address', 'IPv6Address', 'Id', 'InterfaceAlias',
+                    'LevelDisplayName', 'LogName', 'Name', 'NetProfile', 'ProcessName',
+                    'ProductName', 'StartType', 'Status', 'TimeCreated', 'UBR'
+                ) }
+            )
+        }
+        @{
+            Name = 'Sort-Object'
+            Parameters = @(
+                @{ Name = 'Property'; ValidateSet = @(
+                    'CurrentBuild', 'CurrentBuildNumber', 'DisplayVersion',
+                    'EditionID', 'IPv4Address', 'IPv6Address', 'Id', 'InterfaceAlias',
+                    'LevelDisplayName', 'LogName', 'Name', 'NetProfile', 'ProcessName',
+                    'ProductName', 'StartType', 'Status', 'TimeCreated', 'UBR'
+                ) }
+            )
+        }
+    )
+}

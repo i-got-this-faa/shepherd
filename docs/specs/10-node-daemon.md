@@ -135,6 +135,30 @@ Event Log source `Shepherd` for start/stop/crash/apply summary.
 `shepherd-node support-bundle` zips redacted logs, last reports, journal
 summary, inventory.
 
+## Tier 2 Windows diagnostics [AGT-07]
+
+The Windows `RunReadOnlyShell` endpoint is JEA `ShepherdDiag` in `NoLanguage`
+mode. It runs as a virtual account in the local `Users` group and accepts only
+allowlisted read-only command pipelines, never arbitrary PowerShell. The
+endpoint ACL permits the daemon's `SYSTEM` identity only.
+
+The source cmdlets are `Get-Service`, `Get-Process`, `Get-WinEvent`,
+`Get-NetIPConfiguration`, and `Get-ItemProperty`. Queries require explicit
+selectors: service/process names or IDs, one interface alias, one of the
+`Application`, `System`, or `Setup` event logs with at most 1,000 records, or
+named values from `HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion`. The
+Registry provider is visible only for that constrained `Get-ItemProperty` query.
+Every pipeline ends with `Select-Object` over the property allowlist:
+`CurrentBuild`, `CurrentBuildNumber`, `DisplayVersion`, `EditionID`,
+`IPv4Address`, `IPv6Address`, `Id`, `InterfaceAlias`, `LevelDisplayName`,
+`LogName`, `Name`, `NetProfile`, `ProcessName`, `ProductName`, `StartType`,
+`Status`, `TimeCreated`, and `UBR`. Event messages and unselected object fields
+are not returned. `Sort-Object` may precede that final projection. Pipelines
+are limited to four commands, 60 seconds, and 64 KiB of combined output.
+
+Tier 2 does not expose `Test-NetConnection` or other network probes. Authorized
+connectivity diagnostics use the Tier 1 `net.reach` probe.
+
 ## Acceptance
 
 - Cross-compiles for windows/amd64, linux/amd64, darwin/arm64.
