@@ -1,0 +1,11 @@
+{
+  "name": "@shepherd/pi-ai",
+  "version": "0.1.0-dev",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "echo 'pi-ai build placeholder'",
+    "test": "echo 'pi-ai test placeholder'",
+    "typecheck": "echo 'pi-ai typecheck placeholder'"
+  }
+}

@@ -90,6 +90,8 @@
             protoc-gen-go
             protoc-gen-connect-go
             bun
+            biome
+            typescript
             postgresql
             attic-client
             sqlc

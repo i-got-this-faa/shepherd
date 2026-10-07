@@ -1,0 +1,25 @@
+{
+  "name": "shepherd",
+  "version": "0.1.0-dev",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/contracts/gen/ts",
+    "packages/pi/*"
+  ],
+  "scripts": {
+    "build": "bun run --filter '*' build",
+    "format": "biome format --write .",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "test": "bun test",
+    "test:workspaces": "bun run --filter '*' test",
+    "typecheck": "bun run --filter '*' typecheck"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.15",
+    "@types/bun": "latest",
+    "typescript": "^5.9.0"
+  }
+}
